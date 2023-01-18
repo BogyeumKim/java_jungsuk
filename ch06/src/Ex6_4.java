@@ -9,6 +9,8 @@ public class Ex6_4 {
 				long result4 = mm.divide(10, 5);
 				int result5 = mm.maxVal(5, 4);
 				
+				mm.printGugudan(12);
+				
 				System.out.println(reuslt1);
 				System.out.println(result2);
 				System.out.println(result3);
@@ -22,6 +24,15 @@ public class Ex6_4 {
 }
 
 class MyMath {
+	void printGugudan(int dan) {
+		
+		if(!(2<=dan && dan <=9)) return;
+		
+		for(int i=1; i<=9; i++) {
+			System.out.printf("%d * %d = %d%n",dan,i,dan*i);
+		}
+	}
+	
 	
 	
 	long add (long a, long b) {

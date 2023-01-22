@@ -1,4 +1,4 @@
-class Point {
+class Point extends Object { // object안써도 컴파일시 자동으로 생성해줌 object에는 여러개의 메소드가 있음
 	int x;
 	int y;
 	
@@ -28,6 +28,8 @@ public class InheritanceTest {
 		System.out.println(c.p.x);
 		System.out.println(c.p.y);
 		System.out.println(c.r);
+		
+		System.out.println(c.toString()); // Object 클래스에 toString 메소드 존재하여 이용가능
 	}
 
 }

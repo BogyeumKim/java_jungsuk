@@ -11,13 +11,13 @@ public class Ex11_5 {
 //		ArrayList list = new ArrayList(); 
 		 
 		
-		// set은 컬렉션의 자손 이니까 iterator 사용가능 하지만 HashSet.get이 없으므로 44줄 for문 .get은 불가 그러므로 13 line처럼 업캐스팅 해주자
-//		HashSet list = new HashSet();
+		// set은 컬렉션의 자손 이니까 iterator 사용가능 하지만 HashSet.get이 없으므로 48줄 for문 .get은 불가 그러므로 20 line처럼 , next는 가능하다. 하지만 20라인처럼 업캐스팅해주기
+		HashSet list = new HashSet();
 //		TreeSet list = new TreeSet();
 		
 		
 		// 아래처럼 업캐스팅 하는 이유는 뒤에 HashSet이나 TreeSet이나 언제든 바꿔도 에러가 안나기 떄문에
-		Collection list = new HashSet(); 
+//		Collection list = new HashSet();
 //		Collection list = new TreeSet();
 		
 		list.add("1");
@@ -25,8 +25,8 @@ public class Ex11_5 {
 		list.add("3");
 		list.add("4");
 		list.add("5");
-	
-		
+
+
 		
 		Iterator it = list.iterator(); // 1회용  get,set 다 가능
 		

@@ -7,7 +7,7 @@ public class Ex13_23 {
         new Thread(new 손님(table,"도넛"), "손님1").start(); // Thread는 객체,이름
         new Thread(new 손님(table,"버거"),"손님2").start();
 
-        Thread.sleep(5000); // main 메서드에서 예외 던지니까 try 필요 X
+        Thread.sleep(2000); // main 메서드에서 예외 던지니까 try 필요 X
         System.exit(0);
 
     }
@@ -26,19 +26,22 @@ class 손님 implements Runnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             }catch (InterruptedException e){}
 
             String name = Thread.currentThread().getName();
 
-            if (먹다()) {
-                System.out.println(name + " 는 " + 음식 + " 을 먹었습니다");
-            } else {
-                System.out.println(name + " 는 " + 음식 + " 을 먹기를 실패했습니다");
-            }
+            table.삭제(음식);
+            System.out.println(name + " 는 " + 음식 + " 을 먹었습니다");
+
+//            if (먹다()) {
+//                System.out.println(name + " 는 " + 음식 + " 을 먹었습니다");
+//            } else {
+//                System.out.println(name + " 는 " + 음식 + " 을 먹기를 실패했습니다");
+//            }
         }
     }
-    boolean 먹다() { return table.삭제(음식);}
+//    boolean 먹다() { return table.삭제(음식);}
 }
 
 class 요리 implements Runnable {
@@ -55,7 +58,7 @@ class 요리 implements Runnable {
             table.추가(table.메뉴[idx]); // 테이블에 추가
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e) {}
         }
     }
@@ -67,33 +70,51 @@ class 테이블 {
 
     private ArrayList<String> 접시 = new ArrayList<>();
 
-    synchronized void 추가(String 음식) { // 동기화 추가
-        if (접시.size() >= MAX_FOOD) { // 테이블접시에 음식 다찼으면 음식추가 X
-            return;
+    public synchronized void 추가(String 음식) { // 동기화 추가
+        while (접시.size() >= MAX_FOOD) { // 테이블접시에 음식 다찰때까지
+            String name = Thread.currentThread().getName();
+            System.out.println(name + " 은 기다리고있습니다. 추가파트 ");
+            try {
+                wait(); // 요리 쓰레드를 기다리게한다.
+                Thread.sleep(500);
+            } catch (InterruptedException e ){}
         }
+
         접시.add(음식);
+        notify(); // 기다리고있는 손님을 깨우기 위함
         System.out.println("접시에는 : "+ 접시.toString());
     }
 
-    boolean 삭제(String 음식) {
+    public void 삭제(String 음식) {
+
         synchronized (this) {
+            String name = Thread.currentThread().getName();
+
             while (접시.size() == 0) {
-                String name = Thread.currentThread().getName();
-                System.out.println(name + " 은 기다리고있습니다. ");
+                System.out.println(name + " 은 기다리고있습니다. 삭제파트 ");
                 try {
+                    wait(); // 손님쓰레드를 기다리게 한다.
                     Thread.sleep(500);
                 } catch (InterruptedException e) {}
 
             }
 
-            for (int i = 0; i < 접시.size(); i++) {
-                if (음식.equals(접시.get(i))) {
-                    접시.remove(i);
-                    return true;
-                }
-            }
+            while (true){
+                for (int i = 0; i < 접시.size(); i++) {
+                    if (음식.equals(접시.get(i))) {
+                        접시.remove(i);
+                        notify(); // 잠자고 있는 요리를 깨우기 위함
+                        return;
+                    }
+                } // for
+
+                try{
+                    System.out.println(name + " 은 기다리고있습니다. 삭제파트 TWO");
+                    wait(); // 원하는 음식이 없는 손님쓰레드를 기다리게한다.
+                    Thread.sleep(500);
+                } catch (InterruptedException e){}
+            }//while
         } // synchronized
-        return false;
     }
 
     int 음식들() { return 메뉴.length; }

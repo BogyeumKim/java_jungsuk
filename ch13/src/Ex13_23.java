@@ -7,7 +7,7 @@ public class Ex13_23 {
         new Thread(new 손님(table,"도넛"), "손님1").start(); // Thread는 객체,이름
         new Thread(new 손님(table,"버거"),"손님2").start();
 
-        Thread.sleep(100); // main 메서드에서 예외 던지니까 try 필요 X
+        Thread.sleep(5000); // main 메서드에서 예외 던지니까 try 필요 X
         System.exit(0);
 
     }
@@ -55,7 +55,7 @@ class 요리 implements Runnable {
             table.추가(table.메뉴[idx]); // 테이블에 추가
 
             try {
-                Thread.sleep(1);
+                Thread.sleep(100);
             } catch (InterruptedException e) {}
         }
     }
@@ -67,7 +67,7 @@ class 테이블 {
 
     private ArrayList<String> 접시 = new ArrayList<>();
 
-    void 추가(String 음식) {
+    synchronized void 추가(String 음식) { // 동기화 추가
         if (접시.size() >= MAX_FOOD) { // 테이블접시에 음식 다찼으면 음식추가 X
             return;
         }
@@ -76,12 +76,23 @@ class 테이블 {
     }
 
     boolean 삭제(String 음식) {
-        for (int i = 0; i < 접시.size(); i++) {
-            if (음식.equals(접시.get(i))) {
-                접시.remove(i);
-                return true;
+        synchronized (this) {
+            while (접시.size() == 0) {
+                String name = Thread.currentThread().getName();
+                System.out.println(name + " 은 기다리고있습니다. ");
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {}
+
             }
-        }
+
+            for (int i = 0; i < 접시.size(); i++) {
+                if (음식.equals(접시.get(i))) {
+                    접시.remove(i);
+                    return true;
+                }
+            }
+        } // synchronized
         return false;
     }
 

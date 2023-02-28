@@ -1,7 +1,4 @@
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -67,6 +64,79 @@ public class Ex14_15 {
 
         for(Student14_15 s : failedMan) System.out.println(s);
         for(Student14_15 s : failedGirl) System.out.println(s);
+
+        System.out.println();
+
+        System.out.println("5. 단순그릅화(반별로 분할)");
+        Map<Integer, List<Student14_15>> stuByBan = Stream.of(stuArr).collect(groupingBy(Student14_15::getBan));
+        for (List<Student14_15> ban : stuByBan.values()) {
+            for (Student14_15 s : ban) {
+                System.out.println(s);
+            } // for
+        } // for
+
+        System.out.println("6. 단순그룹화 ( 성적별로 분할 )");
+        Map<Student14_15.Level, List<Student14_15>> stuByLevel = Stream.of(stuArr).collect(groupingBy(s-> {
+            if(s.getScore() >= 200) return Student14_15.Level.상;
+            else if(s.getScore() >= 100) return Student14_15.Level.중;
+            else return Student14_15.Level.하;
+        }));
+
+        TreeSet<Student14_15.Level> keySet = new TreeSet<>(stuByLevel.keySet());
+
+        for (Student14_15.Level key : keySet) {
+            System.out.println("[" + key + "]");
+            for (Student14_15 s : stuByLevel.get(key)) {
+                System.out.println(s);
+            }
+            System.out.println();
+        } // for
+
+        System.out.println("7. 단순그룹화 + 통계(성적별 학생수)");
+        Map<Student14_15.Level,Long> stuCntByLevel = Stream.of(stuArr).collect(groupingBy(s->{
+            if(s.getScore() >=200) return Student14_15.Level.상;
+            else if(s.getScore() >= 100) return Student14_15.Level.중;
+            else return Student14_15.Level.하;
+        },counting()));
+
+        for (Student14_15.Level key : stuCntByLevel.keySet()) {
+            System.out.printf("[%s] - %d명, ",key,stuCntByLevel.get(key));
+        }
+
+        System.out.println();
+
+        System.out.println("8. 다중그룹화 (학년별, 반별)");
+        Map<Integer, Map<Integer, List<Student14_15>>> stuByHakAndBan = Stream.of(stuArr).collect(groupingBy(Student14_15::getHak, groupingBy(Student14_15::getBan)));
+        for (Map<Integer, List<Student14_15>> hak : stuByHakAndBan.values()) {
+            for (List<Student14_15> ban : hak.values()) {
+                System.out.println();
+                for (Student14_15 s : ban) {
+                    System.out.println(s);
+                }
+            }
+        }
+
+        System.out.println("9. 다중그룹화 + 통계( 학년별, 반별 1등)");
+        Map<Integer,Map<Integer,Student14_15>> topStuByHakAndBan = Stream.of(stuArr).collect(groupingBy(Student14_15::getHak,groupingBy(Student14_15::getBan,
+                collectingAndThen(maxBy(Comparator.comparingInt(Student14_15::getScore)),Optional::get))));
+        for (Map<Integer, Student14_15> ban : topStuByHakAndBan.values()) {
+            for (Student14_15 s : ban.values()) {
+                System.out.println(s);
+            }
+        }
+
+        System.out.println("10. 다중그룹화 + 통계(학년별, 반별 성적그룹)");
+        Map<String, Set<Student14_15.Level>> stuByScoreGroup = Stream.of(stuArr).collect(groupingBy(s->s.getHak()+"-"+s.getBan(),
+                mapping(s-> {
+                    if(s.getScore() >=200) return Student14_15.Level.상;
+                    else if(s.getScore() >= 100) return Student14_15.Level.중;
+                    else return Student14_15.Level.하;
+                },toSet())));
+
+        Set<String> keySet2 = stuByScoreGroup.keySet();
+        for (String key : keySet2) {
+            System.out.println("["+key+"]"+stuByScoreGroup.get(key));
+        }
     }
 }
 
@@ -115,5 +185,5 @@ class Student14_15 {
                 ", score=" + score +
                 '}';
     }
+    enum Level { 상,중,하 }
 }
-enum Level { 상,중,하 }
